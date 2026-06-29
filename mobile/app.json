@@ -1,0 +1,17 @@
+{
+  "expo": {
+    "name": "Validator Pro",
+    "slug": "validator-pro",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#fcf9f6"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": { "supportsTablet": true, "bundleIdentifier": "com.validatorpro.app" },
+    "android": { "adaptiveIcon": { "backgroundColor": "#fcf9f6" }, "package": "com.validatorpro.app" },
+    "web": { "favicon": "./assets/favicon.png" }
+  }
+}
