@@ -23,23 +23,20 @@ const baseJobOpts = {
   removeOnFail: { age: 604800 },
 }
 
-export const analysisQueue = new Queue('analysis', {
-  connection: REDIS_URL ? (getConnection() as any) : (undefined as any),
-  defaultJobOptions: baseJobOpts,
-})
+function createQueue(name: string, opts: any = {}) {
+  if (!REDIS_URL) return null as any
+  return new Queue(name, {
+    connection: getConnection() as any,
+    defaultJobOptions: { ...baseJobOpts, ...opts },
+  })
+}
 
-export const emailQueue = new Queue('email', {
-  connection: REDIS_URL ? (getConnection() as any) : (undefined as any),
-  defaultJobOptions: { ...baseJobOpts, removeOnFail: undefined },
-})
-
-export const exportQueue = new Queue('export', {
-  connection: REDIS_URL ? (getConnection() as any) : (undefined as any),
-  defaultJobOptions: {
-    attempts: 2,
-    backoff: { type: 'fixed' as const, delay: 5000 },
-    removeOnComplete: { age: 3600 },
-  },
+export const analysisQueue = createQueue('analysis')
+export const emailQueue = createQueue('email', { removeOnFail: undefined })
+export const exportQueue = createQueue('export', {
+  attempts: 2,
+  backoff: { type: 'fixed' as const, delay: 5000 },
+  removeOnComplete: { age: 3600 },
 })
 
 export function initQueues() {
