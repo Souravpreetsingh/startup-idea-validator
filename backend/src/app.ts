@@ -24,10 +24,25 @@ app.use(helmet({
   contentSecurityPolicy: false,
 }))
 
+const ALLOWED_ORIGINS = [
+  env.CLIENT_URL,
+  'https://ai-startup-validator-souravpreetsinghs-projects.vercel.app',
+  'http://localhost:3000',
+  'http://localhost:5173',
+]
+
 app.use(cors({
-  origin: env.CLIENT_URL,
+  origin: (origin, callback) => {
+    if (!origin || ALLOWED_ORIGINS.some((o) => origin.startsWith(o))) {
+      callback(null, true)
+    } else {
+      callback(null, false)
+    }
+  },
   credentials: true,
 }))
+
+app.options('*', cors())
 
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true }))

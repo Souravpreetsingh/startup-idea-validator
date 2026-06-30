@@ -33,6 +33,7 @@ export default function DashboardPage() {
   const [ideas, setIdeas] = useState<any[]>([])
   const [analyses, setAnalyses] = useState<Analysis[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!authLoading && !user) router.replace('/login')
@@ -40,9 +41,13 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!user) return
+    setError(null)
     Promise.all([
-      ideaService.getIdeas(1, 100).then((r) => setIdeas(r.data || [])).catch(() => {}),
-      analysisService.getAllAnalyses(1, 100).then((r) => setAnalyses(r.data?.analyses || [])).catch(() => {}),
+      ideaService.getIdeas(1, 100).then((r) => setIdeas(r.data || [])).catch((e) => {}),
+      analysisService.getAllAnalyses(1, 100).then((r) => setAnalyses(r.data?.analyses || [])).catch((e) => {
+        if (e?.response) setError('Failed to load dashboard data')
+        else setError('Unable to reach the server. Please try again.')
+      }),
     ]).finally(() => setLoading(false))
   }, [user])
 
@@ -115,6 +120,15 @@ export default function DashboardPage() {
                 {Array.from({ length: 4 }).map((_, i) => (
                   <div key={i} className="bg-surface-variant animate-pulse rounded-[32px] h-[160px]" />
                 ))}
+              </div>
+            ) : error ? (
+              <div className="bg-error-container text-on-error-container rounded-[32px] p-6 mb-8 text-center">
+                <p className="font-label-md mb-1">Connection Error</p>
+                <p className="text-sm">{error}</p>
+                <button onClick={() => { setLoading(true); setError(null); window.location.reload() }}
+                  className="mt-4 bg-on-error-container text-error-container px-6 py-2 rounded-full font-label-md">
+                  Retry
+                </button>
               </div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
