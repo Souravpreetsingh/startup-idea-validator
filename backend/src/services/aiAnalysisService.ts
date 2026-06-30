@@ -164,7 +164,7 @@ const fallbackResult: AnalysisOutput = {
 export async function analyzeStartupIdea(idea: IStartupIdeaDocument): Promise<AnalysisOutput> {
   logger.info('[AI Analysis] Starting analysis', { title: idea.title, industry: idea.industry })
 
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
   const prompt = buildPrompt(idea)
 
   logger.info('[AI Analysis] Generated prompt', { promptLength: prompt.length })
