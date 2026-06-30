@@ -47,9 +47,9 @@ export default function HomePage() {
           <button className="text-on-surface-variant font-body-md text-body-md hover:text-primary transition-colors duration-200">Profile</button>
         </nav>
         <div className="flex items-center gap-4">
-          <Link href="/login" className="hidden md:block text-on-surface-variant font-body-md text-body-md hover:text-primary transition-colors duration-200">Logout</Link>
+          <Link href="/login" className="hidden md:block text-on-surface-variant font-body-md text-body-md hover:text-primary transition-colors duration-200">Sign In</Link>
           <Link
-            href="/login"
+            href="/signup"
             className="bg-lavender-whisper text-midnight-ink px-6 py-2 rounded-full font-label-md hover:bg-[#d6bee5] transition-colors"
           >
             Get Started
@@ -71,13 +71,13 @@ export default function HomePage() {
             Analyze startup potential, market demand, and revenue opportunities instantly. Our intelligence engine provides editorial-grade clarity on your next big venture.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <button
-              onClick={() => router.push('/login')}
-              className="bg-lavender-whisper text-midnight-ink px-8 py-4 rounded-full font-label-md hover:scale-95 transition-transform duration-150 flex items-center gap-2"
-            >
-              Validate Idea
-              <span className="material-symbols-outlined text-sm">arrow_forward</span>
-            </button>
+              <button
+                onClick={() => router.push('/signup')}
+                className="bg-lavender-whisper text-midnight-ink px-8 py-4 rounded-full font-label-md hover:scale-95 transition-transform duration-150 flex items-center gap-2"
+              >
+                Validate Idea
+                <span className="material-symbols-outlined text-sm">arrow_forward</span>
+              </button>
             <button className="bg-transparent border border-stone-mist text-midnight-ink px-8 py-4 rounded-full font-label-md hover:bg-stone-mist/20 transition-colors flex items-center gap-2">
               Watch Demo
               <span className="material-symbols-outlined text-sm">play_circle</span>
@@ -157,12 +157,12 @@ export default function HomePage() {
             </div>
             <h3 className="font-label-md text-lg mb-4 text-cream-paper uppercase tracking-widest">Executive Summaries</h3>
             <p className="font-body-md text-surface-dim max-w-lg mb-8">Export beautifully typeset, investor-ready validation reports directly to PDF or Notion.</p>
-            <button
-              onClick={() => router.push('/login')}
-              className="bg-lavender-whisper text-midnight-ink px-6 py-2 rounded-full font-label-md hover:bg-[#d6bee5] transition-colors"
-            >
-              View Sample Report
-            </button>
+              <button
+                onClick={() => router.push('/signup')}
+                className="bg-lavender-whisper text-midnight-ink px-6 py-2 rounded-full font-label-md hover:bg-[#d6bee5] transition-colors"
+              >
+                View Sample Report
+              </button>
           </div>
         </div>
       </section>
