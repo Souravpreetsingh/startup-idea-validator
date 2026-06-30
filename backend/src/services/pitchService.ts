@@ -1,7 +1,4 @@
-import { GoogleGenerativeAI } from '@google/generative-ai'
-import { env } from '../config/env'
-
-const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY)
+import logger from '../config/logger'
 
 export interface PitchOutput {
   elevatorPitch: string
@@ -18,33 +15,52 @@ export async function generatePitch(idea: {
   problemStatement?: string
   expectedSolution?: string
 }): Promise<PitchOutput> {
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+  logger.info('[PitchService] Generating pitch materials', { title: idea.title, industry: idea.industry })
 
-  const prompt = `You are a pitch coach and storytelling expert. Generate compelling pitch materials for this startup.
+  const problem = idea.problemStatement || 'A significant problem that affects many people in the ' + idea.industry + ' space'
+  const solution = idea.expectedSolution || `An innovative ${idea.industry} solution that addresses this problem effectively`
 
-STARTUP:
-Title: ${idea.title}
-Description: ${idea.description}
-Industry: ${idea.industry}
-Problem: ${idea.problemStatement || 'Not specified'}
-Solution: ${idea.expectedSolution || 'Not specified'}
+  const elevatorPitch = `${idea.title} helps ${idea.industry} professionals ${problem.toLowerCase().includes('problem') ? 'solve their most critical challenges' : problem.toLowerCase().slice(0, 40)} — so they can focus on what matters most.`
 
-Return ONLY a valid JSON object. No markdown.
+  const oneMinutePitch = `Hi, I'm the founder of ${idea.title}.
 
-{
-  "elevatorPitch": "One sentence, under 30 words",
-  "oneMinutePitch": "A compelling 60-second pitch (150 words max)",
-  "detailedPitch": "A 3-minute pitch with problem, solution, market, traction, ask",
-  "problemStatement": "Clear articulation of the problem being solved",
-  "visionStatement": "Inspiring long-term vision for the company"
-}`
+${problem} This is a critical challenge that affects millions of people and businesses in the ${idea.industry} space. Current solutions are expensive, complex, and fail to deliver real results.
 
-  const result = await model.generateContent(prompt)
-  const text = result.response.text().trim()
-  const cleaned = text.replace(/```json?/gi, '').replace(/```/g, '').trim()
-  const firstBrace = cleaned.indexOf('{')
-  const lastBrace = cleaned.lastIndexOf('}')
-  const json = cleaned.slice(firstBrace, lastBrace + 1)
+That's where we come in. ${solution}. Our approach is fundamentally different — we've built a solution that is 10x more efficient, easier to use, and delivers measurable results.
 
-  return JSON.parse(json) as PitchOutput
+We're currently in [stage] and looking for [partners/investors] to help us scale. Our goal is to become the go-to platform for ${idea.industry} professionals worldwide.
+
+Would you like to learn more?`
+
+  const detailedPitch = `${idea.title} — Transforming the ${idea.industry} Landscape
+
+PROBLEM:
+${problem}
+This problem affects a large and growing market. Current solutions are inadequate because they are [slow/expensive/complex], leaving customers frustrated and underserved.
+
+SOLUTION:
+${solution}
+Our solution is designed from the ground up to address these gaps. Key differentiators include: user-centric design, modern technology stack, and a business model aligned with customer success.
+
+MARKET:
+The ${idea.industry} market is large and growing. We have identified clear customer segments and understand their needs deeply. Our go-to-market strategy focuses on [channels] to reach customers efficiently.
+
+TRACTION:
+We have [validation from customer interviews / MVP in development / initial users] and are on track to achieve key milestones in the coming months.
+
+BUSINESS MODEL:
+Our revenue model is designed for sustainable growth with clear unit economics.
+
+THE ASK:
+We are seeking [investment amount] to accelerate product development, build our team, and execute our go-to-market plan. With this investment, we will achieve [key milestones] within 12-18 months.`
+
+  const visionStatement = `${idea.title}'s vision is to become the essential platform that transforms how ${idea.industry} professionals work, enabling them to achieve more with less effort and driving meaningful innovation across the industry.`
+
+  return {
+    elevatorPitch,
+    oneMinutePitch,
+    detailedPitch,
+    problemStatement: problem,
+    visionStatement,
+  }
 }

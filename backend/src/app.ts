@@ -55,7 +55,7 @@ app.get('/api/health', async (_req, res) => {
     success: true,
     status: dbState === 'connected' ? 'healthy' : 'degraded',
     database: dbState,
-    aiService: env.GEMINI_API_KEY ? 'configured' : 'missing',
+    aiService: 'local (no external API)',
     cache: process.env.REDIS_URL ? 'configured' : 'disabled',
     queue: process.env.REDIS_URL ? 'configured' : 'disabled',
     uptime: `${uptime}s`,

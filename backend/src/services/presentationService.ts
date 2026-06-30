@@ -1,10 +1,6 @@
-import { GoogleGenerativeAI } from '@google/generative-ai'
-import { env } from '../config/env'
 import type { IStartupIdeaDocument } from '../models/StartupIdea'
 import type { IAnalysisResultDocument } from '../models/AnalysisResult'
 import logger from '../config/logger'
-
-const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY)
 
 export interface Slide {
   title: string
@@ -22,78 +18,100 @@ export async function generatePresentation(
   idea: IStartupIdeaDocument,
   analysis?: IAnalysisResultDocument | null,
 ): Promise<PresentationOutput> {
-  const prompt = `You are a startup pitch deck designer. Create a compelling investor presentation for this startup.
+  logger.info('[PresentationService] Generating presentation', { title: idea.title, industry: idea.industry })
 
-Startup: "${idea.title}"
-Industry: ${idea.industry}
-Description: ${idea.description}
-Target Audience: ${idea.targetAudience || 'N/A'}
-Business Model: ${idea.businessModel || 'N/A'}
-Budget: ${idea.budget || 'N/A'}
-${analysis ? `
-Analysis Score: ${analysis.ideaScore}/100
-Success Probability: ${analysis.successProbability}%
-Competitors: ${analysis.competitors.map(c => c.name).join(', ')}
-Strengths: ${analysis.swot.strengths.join(', ')}
-Revenue Models: ${analysis.revenueSuggestions.join(', ')}
-Growth Strategy: ${analysis.growthStrategy}
-` : ''}
+  const budget = idea.budget || 'To be determined'
+  const audience = idea.targetAudience || 'Target market to be defined'
+  const problem = idea.problemStatement || 'A problem that needs solving'
+  const solution = idea.expectedSolution || 'An innovative solution'
+  const model = idea.businessModel || 'To be determined'
 
-Return ONLY valid JSON (no markdown):
-{
-  "theme": "modern | professional | creative | minimalist",
-  "slides": [
+  const ideaScore = analysis?.ideaScore ?? 75
+  const probability = analysis?.successProbability ?? 70
+  const strengths = analysis?.swot?.strengths?.slice(0, 3) || ['Clear value proposition', 'Strong market timing', 'Experienced team']
+  const competitors = analysis?.competitors?.slice(0, 3) || []
+  const revenues = analysis?.revenueSuggestions?.slice(0, 3) || ['Subscription revenue', 'Professional services', 'Usage-based pricing']
+  const roadmap = analysis?.mvpRoadmap?.slice(0, 4) || ['MVP development (Month 1-2)', 'Beta launch (Month 3)', 'Market launch (Month 5)', 'Scale operations (Month 7+)']
+  const growth = analysis?.growthStrategy || 'Multi-channel customer acquisition with focus on product-led growth'
+
+  const slides: Slide[] = [
     {
-      "title": "Slide Title",
-      "content": "Key message for this slide (1-2 sentences)",
-      "bullets": ["bullet1", "bullet2", "bullet3"],
-      "notes": "Speaker notes for presenting this slide"
-    }
+      title: idea.title,
+      content: 'Transforming the ' + idea.industry + ' landscape through innovation',
+      bullets: [`Industry: ${idea.industry}`, `Business Model: ${model}`, `Target Market: ${audience}`],
+      notes: 'Welcome everyone. Today I am excited to present ' + idea.title + ', a venture that addresses significant opportunities in the ' + idea.industry + ' space.',
+    },
+    {
+      title: 'The Problem',
+      content: problem,
+      bullets: [`Current pain points in ${idea.industry}`, 'Inefficient existing solutions', 'Growing demand for better alternatives', 'Estimated market gap: $1B+ addressable opportunity'],
+      notes: 'We have identified a critical problem that affects our target customers daily. Current solutions are expensive, complex, and fail to deliver adequate results.',
+    },
+    {
+      title: 'Our Solution',
+      content: solution,
+      bullets: ['Innovative approach to solving the problem', 'Built for modern user expectations', '10x improvement over existing alternatives', 'Scalable architecture from day one'],
+      notes: 'Our solution directly addresses the pain points we identified. We have designed it with the user at the center, ensuring it is intuitive, powerful, and scalable.',
+    },
+    {
+      title: 'Market Opportunity',
+      content: `The ${idea.industry} market represents a significant and growing opportunity.`,
+      bullets: ['Large Total Addressable Market (TAM)', 'Growing at significant CAGR', 'Clear customer segments identified', 'Favorable market trends and tailwinds'],
+      notes: 'The market timing is ideal. Industry trends, regulatory changes, and customer demand are aligning perfectly for our solution.',
+    },
+    {
+      title: 'Product & Technology',
+      content: 'Our product delivers core value through innovative technology.',
+      bullets: ['Core features addressing key user needs', 'Modern tech stack for rapid iteration', 'Built-in analytics and reporting', 'API-first architecture for integrations'],
+      notes: 'We have built a robust technology platform that allows us to iterate quickly while maintaining enterprise-grade reliability and security.',
+    },
+    {
+      title: 'Business Model',
+      content: `Our ${model} model ensures predictable, recurring revenue.`,
+      bullets: [`Revenue streams: ${revenues.join(', ')}`],
+      notes: 'Our business model is designed for sustainable growth with clear unit economics and a path to profitability.',
+    },
+    {
+      title: 'Competitive Landscape',
+      content: 'We have a clear competitive advantage in our space.',
+      bullets: competitors.length > 0
+        ? competitors.map(c => `${c.name}: ${c.strengths.slice(0, 30)}`)
+        : ['Limited direct competition in our niche', 'Existing solutions are outdated', 'Our approach is fundamentally different'],
+      notes: 'Our competitive analysis reveals a clear opportunity. While there are existing players, none address the market the way we do.',
+    },
+    {
+      title: 'Go-to-Market Strategy',
+      content: growth,
+      bullets: ['Customer acquisition through targeted channels', 'Strategic partnerships for distribution', 'Content marketing for organic growth', 'Sales team for enterprise accounts'],
+      notes: 'Our GTM strategy is focused on efficient customer acquisition through a combination of inbound, outbound, and partnership channels.',
+    },
+    {
+      title: 'Financial Projections',
+      content: 'Strong unit economics with clear path to profitability.',
+      bullets: [`Idea Score: ${ideaScore}/100`, `Success Probability: ${probability}%`, 'Projected revenue: ramping from initial launch', 'Clear milestones for each funding stage'],
+      notes: 'Our financial model shows attractive unit economics with improving margins as we scale. We have identified the key metrics that drive our business.',
+    },
+    {
+      title: 'The Team',
+      content: 'Experienced team with domain expertise and execution capability.',
+      bullets: ['Founder/team with relevant background', 'Domain expertise in ' + idea.industry, 'Advisory board with industry leaders', 'Strong technical execution capability'],
+      notes: 'Our team combines deep domain knowledge with strong technical and business execution skills. We are the right team to execute on this vision.',
+    },
+    {
+      title: 'Funding Ask',
+      content: 'Seeking investment to accelerate product development and market penetration.',
+      bullets: [`Budget: ${budget}`, 'Use of funds: Product development, Marketing, Team expansion', 'Timeline: 12-18 months runway', 'Milestones: MVP launch, initial customers, Series A readiness'],
+      notes: 'We are seeking funding to execute our plan and reach key milestones that will position us for the next stage of growth.',
+    },
+    {
+      title: 'Vision & Roadmap',
+      content: 'Our long-term vision for transforming the industry.',
+      bullets: roadmap,
+      notes: 'Our vision extends beyond the initial product. We see a platform that becomes essential infrastructure for the industry.',
+    },
   ]
-}
 
-Required slides (in order):
-1. Title Slide - startup name, tagline
-2. Problem - the problem being solved
-3. Solution - how the product solves it
-4. Market Size - TAM/SAM/SOM
-5. Product - key features and screenshots description
-6. Business Model - revenue streams, pricing
-7. Competition - competitive advantage
-8. Marketing Strategy - go-to-market plan
-9. Financial Projections - revenue forecast, key metrics
-10. Team - founder backgrounds, advisors
-11. Funding Ask - amount needed, use of funds
-12. Vision - long-term vision and mission
-
-Generate exactly 12 slides with compelling, investor-ready content.`
-
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
-
-  try {
-    const result = await model.generateContent(prompt)
-    const text = result.response.text()
-    const cleaned = text.replace(/```json?/gi, '').replace(/```/g, '').trim()
-    const firstBrace = cleaned.indexOf('{')
-    const lastBrace = cleaned.lastIndexOf('}')
-    const jsonStr = firstBrace !== -1 && lastBrace !== -1 ? cleaned.slice(firstBrace, lastBrace + 1) : cleaned
-    const parsed: PresentationOutput = JSON.parse(jsonStr)
-
-    if (!parsed.slides?.length) throw new Error('No slides generated')
-    return parsed
-  } catch (err) {
-    logger.warn('[Presentation] AI generation failed, using fallback:', err)
-    return {
-      theme: 'modern',
-      slides: [
-        { title: idea.title, content: `${idea.description?.slice(0, 100)}...`, bullets: [`Industry: ${idea.industry}`], notes: 'Welcome everyone' },
-        { title: 'Problem', content: 'The problem we are solving', bullets: [idea.problemStatement || 'Market gap identified'], notes: '' },
-        { title: 'Solution', content: 'Our solution', bullets: [idea.expectedSolution || 'Innovative approach'], notes: '' },
-        { title: 'Market Size', content: 'Large addressable market', bullets: ['Growing industry', 'Strong demand'], notes: '' },
-        { title: 'Funding Ask', content: 'Seeking investment to scale', bullets: ['Product development', 'Marketing', 'Team growth'], notes: '' },
-      ],
-    }
-  }
+  return { slides, theme: 'modern' }
 }
 
 export function generateHtmlSlides(presentation: PresentationOutput): string {

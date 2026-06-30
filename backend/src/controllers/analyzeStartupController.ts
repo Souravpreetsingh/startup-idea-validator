@@ -65,9 +65,6 @@ export async function analyzeStartup(req: AuthRequest, res: Response) {
     if (!process.env.JWT_SECRET) {
       throw new Error('Missing environment variable: JWT_SECRET')
     }
-    if (!process.env.GEMINI_API_KEY) {
-      throw new Error('Missing environment variable: GEMINI_API_KEY')
-    }
 
     // --- Create startup idea ---
     console.log('Generating startup analysis...')

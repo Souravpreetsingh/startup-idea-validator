@@ -1,9 +1,20 @@
 import { StartupIdea } from '../models/StartupIdea'
 import { AnalysisResult } from '../models/AnalysisResult'
-import { GoogleGenerativeAI } from '@google/generative-ai'
-import { env } from '../config/env'
 
-const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY)
+const emergingTrends = [
+  'AI-powered automation across all industries',
+  'Climate tech and carbon accounting platforms',
+  'Vertical AI agents for specific industries',
+  'Developer experience and productivity tools',
+  'Digital health and personalized medicine',
+  'Generative AI for content and creative workflows',
+  'Edge computing and IoT integration',
+  'Cybersecurity and data privacy solutions',
+  'Remote work infrastructure and collaboration tools',
+  'Fintech innovation in payments and lending',
+  'Sustainability and circular economy platforms',
+  'No-code and low-code development tools',
+]
 
 export async function getMarketTrends() {
   const [industryCount, avgScores] = await Promise.all([
@@ -40,22 +51,12 @@ export async function getMarketTrends() {
     analysisCount: t.count,
   }))
 
-  let aiTrends: string[] = []
-  try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
-    const prompt = `List the top 5 emerging technology trends for startups in 2025-2026. Return ONLY a JSON array of strings: ["trend1", "trend2", "trend3", "trend4", "trend5"]`
-    const result = await model.generateContent(prompt)
-    const text = result.response.text().trim()
-    const cleaned = text.replace(/```json?/gi, '').replace(/```/g, '').trim()
-    aiTrends = JSON.parse(cleaned)
-  } catch {
-    aiTrends = ['AI/ML Integration', 'Climate Tech', 'Health Tech', 'Fintech Innovation', 'Developer Tools']
-  }
+  const randomTrends = [...emergingTrends].sort(() => Math.random() - 0.5).slice(0, 5)
 
   return {
     industryBreakdown: trends,
     topIndustries: industryCount.map((i: any) => ({ industry: i._id, count: i.count })),
-    emergingTrends: aiTrends,
+    emergingTrends: randomTrends,
     totalIdeas: industryCount.reduce((s: number, i: any) => s + i.count, 0),
   }
 }
