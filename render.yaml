@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: startup-validator-backend
+    runtime: node
+    repo: https://github.com/Souravpreetsingh/startup-idea-validator
+    branch: master
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: NODE_ENV
+        value: production
+      - key: CLIENT_URL
+        value: https://ai-startup-validator-souravpreetsinghs-projects.vercel.app

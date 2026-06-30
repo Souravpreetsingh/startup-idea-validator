@@ -2,9 +2,9 @@ name: CI/CD
 
 on:
   push:
-    branches: [main, develop]
+    branches: [master, develop]
   pull_request:
-    branches: [main]
+    branches: [master]
 
 env:
   NODE_VERSION: '20'
@@ -66,7 +66,7 @@ jobs:
 
   deploy-backend:
     name: Deploy Backend
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/master'
     needs: test
     runs-on: ubuntu-latest
     steps:
@@ -78,7 +78,7 @@ jobs:
 
   deploy-frontend:
     name: Deploy Frontend
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/master'
     needs: test
     runs-on: ubuntu-latest
     steps:
