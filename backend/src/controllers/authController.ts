@@ -9,14 +9,15 @@ import type { AuthRequest } from '../types'
 export const signup = asyncHandler(async (req: Request, res: Response) => {
   const { fullName, email, password, startupExperience, industryInterest } = req.body
 
-  const existingUser = await User.findOne({ email })
+  const normalizedEmail = email?.toLowerCase()?.trim()
+  const existingUser = await User.findOne({ email: normalizedEmail })
   if (existingUser) {
     throw new AppError('Email already registered', 409)
   }
 
   const user = await User.create({
     fullName,
-    email,
+    email: normalizedEmail,
     password,
     startupExperience,
     industryInterest,
@@ -38,7 +39,8 @@ export const signup = asyncHandler(async (req: Request, res: Response) => {
 export const login = asyncHandler(async (req: Request, res: Response) => {
   const { email, password } = req.body
 
-  const user = await User.findOne({ email }).select('+password')
+  const normalizedEmail = email?.toLowerCase()?.trim()
+  const user = await User.findOne({ email: normalizedEmail }).select('+password')
   if (!user) {
     throw new UnauthorizedError('Invalid email or password')
   }
@@ -70,7 +72,8 @@ export const getMe = asyncHandler(async (req: AuthRequest, res: Response) => {
 })
 
 export const forgotPassword = asyncHandler(async (req: Request, res: Response) => {
-  const { email } = req.body
+  const { email: rawEmail } = req.body
+  const email = rawEmail?.toLowerCase()?.trim()
 
   const user = await User.findOne({ email })
   if (!user) {
